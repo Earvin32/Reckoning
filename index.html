@@ -16,17 +16,32 @@
             color: #ff4444;
             text-shadow: 0 0 10px #ff0000;
         }
-        input {
-            padding: 10px;
-            font-size: 16px;
-            width: 60%;
-            border: none;
-            border-radius: 5px;
-            margin-top: 10px;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            max-width: 600px;
+            margin: auto;
+        }
+        .item {
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+            background-color: #1a1a1a;
+        }
+        .item img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .item.selected {
+            border-color: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
         }
         button {
             padding: 10px 20px;
-            margin-top: 10px;
+            margin-top: 20px;
             font-size: 16px;
             background-color: #ff4444;
             color: white;
@@ -44,62 +59,75 @@
             color: #00ff00;
             text-shadow: 0 0 5px #00ff00;
         }
-        footer {
-            margin-top: 40px;
-            font-size: 12px;
-            color: #666;
-        }
     </style>
 </head>
 <body>
     <h1>Reckoning - Ordre Chronologique</h1>
-    <p>Entrez les 4 objets vus (noms ou numéros, séparés par des virgules)</p>
-    
-    <input type="text" id="inputObjets" placeholder="Ex: katana, 1, lunettes, montre">
-    <br>
+    <p>Sélectionnez les 4 objets présents dans la partie :</p>
+
+    <div class="grid" id="objetsGrid">
+        <!-- Les objets seront générés ici -->
+    </div>
+
     <button onclick="calculer()">Calculer</button>
 
     <div class="resultat" id="resultat"></div>
 
-    <footer>
-        Reckoning Tool © 2025 - Inspiré par Black Ops Zombies
-    </footer>
-
     <script>
         const objets = {
-            "1": ["passi", "15/07"],
-            "2": ["katana", "08/12"],
-            "3": ["écharppe", "21/08"],
-            "4": ["montre", "02/09"],
-            "5": ["lunettes", "12/10"],
-            "6": ["badge", "28/06"]
+            "1": { nom: "passi", date: "15/07", image: "images/passi.jpg" },
+            "2": { nom: "katana", date: "08/12", image: "images/katana.jpg" },
+            "3": { nom: "écharpe", date: "21/08", image: "images/echarpe.jpg" },
+            "4": { nom: "montre", date: "02/09", image: "images/montre.jpg" },
+            "5": { nom: "lunettes", date: "12/10", image: "images/lunettes.jpg" },
+            "6": { nom: "badge", date: "28/06", image: "images/badge.jpg" }
         };
 
         const ordreDates = ["28/06", "15/07", "21/08", "02/09", "12/10", "08/12"];
+        const selection = new Set();
+
+        function genererObjets() {
+            const grid = document.getElementById("objetsGrid");
+            for (let num in objets) {
+                const item = document.createElement("div");
+                item.classList.add("item");
+                item.dataset.num = num;
+
+                item.innerHTML = `
+                    <img src="${objets[num].image}" alt="${objets[num].nom}">
+                    <p>${objets[num].nom}</p>
+                `;
+
+                item.addEventListener("click", () => toggleSelection(num, item));
+                grid.appendChild(item);
+            }
+        }
+
+        function toggleSelection(num, element) {
+            if (selection.has(num)) {
+                selection.delete(num);
+                element.classList.remove("selected");
+            } else {
+                if (selection.size < 4) {
+                    selection.add(num);
+                    element.classList.add("selected");
+                }
+            }
+        }
 
         function calculer() {
-            const entree = document.getElementById("inputObjets").value.toLowerCase().split(",");
-            let nums = [];
-
-            entree.forEach(item => {
-                item = item.trim();
-                for (let num in objets) {
-                    if (item === num || item === objets[num][0].toLowerCase()) {
-                        nums.push([num, objets[num][1]]);
-                    }
-                }
-            });
-
-            if (nums.length !== 4) {
-                document.getElementById("resultat").textContent = "⚠️ Veuillez entrer exactement 4 objets valides.";
+            if (selection.size !== 4) {
+                document.getElementById("resultat").textContent = "⚠️ Sélectionnez exactement 4 objets.";
                 return;
             }
 
+            let nums = Array.from(selection).map(num => [num, objets[num].date]);
             nums.sort((a, b) => ordreDates.indexOf(a[1]) - ordreDates.indexOf(b[1]));
-            const resultat = nums.map(n => n[0]).join(" ");
 
-            document.getElementById("resultat").textContent = "Ordre : " + resultat;
+            document.getElementById("resultat").textContent = "Ordre : " + nums.map(n => n[0]).join(" ");
         }
+
+        genererObjets();
     </script>
 </body>
 </html>
