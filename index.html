@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ordre Objets Zombies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background: #111;
+            color: #eee;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button {
+            cursor: pointer;
+        }
+        .resultat {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ordre Chronologique Zombies</h1>
+    <p>Entrez les 4 objets vus (noms ou numéros séparés par des virgules)</p>
+    <input type="text" id="inputObjets" placeholder="ex: katana, 1, lunettes, montre" size="50">
+    <br>
+    <button onclick="calculer()">Calculer</button>
+
+    <div class="resultat" id="resultat"></div>
+
+    <script>
+        const objets = {
+            "1": ["passi", "15/07"],
+            "2": ["katana", "08/12"],
+            "3": ["écharppe", "21/08"],
+            "4": ["montre", "02/09"],
+            "5": ["lunettes", "12/10"],
+            "6": ["badge", "28/06"]
+        };
+
+        const ordreDates = ["28/06", "15/07", "21/08", "02/09", "12/10", "08/12"];
+
+        function calculer() {
+            const entree = document.getElementById("inputObjets").value.toLowerCase().split(",");
+            let nums = [];
+
+            entree.forEach(item => {
+                item = item.trim();
+                for (let num in objets) {
+                    if (item === num || item === objets[num][0].toLowerCase()) {
+                        nums.push([num, objets[num][1]]);
+                    }
+                }
+            });
+
+            nums.sort((a, b) => ordreDates.indexOf(a[1]) - ordreDates.indexOf(b[1]));
+            const resultat = nums.map(n => n[0]).join(" ");
+
+            document.getElementById("resultat").textContent = "Ordre : " + resultat;
+        }
+    </script>
+</body>
+</html>
